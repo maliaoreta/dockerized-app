@@ -8,15 +8,31 @@ const DB_CONN = process.env.DB_CONN || 'postgres://malia:password@localhost:5432
 
 var db = pgp(DB_CONN);
 
-db.many('select * from counter')
-  .then( (data) => console.log(data) )
-  .catch( (err) => console.error(err) );
 
+app.get('/api/counters', (req, res) => 
+  db.many('select * from counter')
+    .then( data => res.json(data) )
+    .catch( err => res.send(err) )
+  );
 
-let counter = { count: 0 };
+app.get('/api/counter/:id', (req, res) => 
+  db.one(`select * from counter where id = ${parseInt(req.params.id)}`)
+    .then( data => res.json(data) )
+    .catch( err => res.send(err) )
+  );
 
-app.get('/api/counter', (req, res) => res.json(counter) );
-app.get('/api/counter/increment', (req, res) => { counter.count++; res.json(counter); } );
-app.get('/api/counter/decrement', (req, res) => { counter.count--; res.json(counter); } );
+app.get('/api/counter/:id/increment', (req, res) =>
+  db.one(`select * from counter where id = ${parseInt(req.params.id)}`)
+    .then( data => db.query(`update counter SET value = ${data.value + 1} where id = ${data.id}`) )
+    .then( data => res.json({ updated: 1 }) )
+    .catch( err => res.send(err) )
+  );
+
+app.get('/api/counter/:id/decrement', (req, res) =>
+  db.one(`select * from counter where id = ${parseInt(req.params.id)}`)
+    .then( data => db.query(`update counter SET value = ${data.value - 1} where id = ${data.id}`) )
+    .then( data => res.json({ updated: 1 }) )
+    .catch( err => res.send(err) )
+  );
 
 app.listen ( PORT );
