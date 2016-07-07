@@ -11,5 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "express": "^4.14.0"
+  },
+  "dependencies": {
+    "pg-promise": "^5.1.0"
   }
 }
