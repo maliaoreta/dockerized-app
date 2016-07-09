@@ -24,8 +24,7 @@ db.one(checkTableExistsSQL)
   .then(data => {
     if (!data.exists) {
       db.query(createTableSQL)
-        .catch( err => res.json(err) )
-      db.query(`insert into counter (value) values (10), (20), (30)`)
+        .then(() => db.query(`insert into counter (value) values (10), (20), (30)`))
         .catch( err => res.json(err) )
     }
   })
